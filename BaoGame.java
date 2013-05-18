@@ -68,13 +68,15 @@ public class BaoGame {
     }
     
     public Loc getMove(int player) {
-        //Should get a pit to add a seed in, then make sure it's okay: must already have seeds etc.
+        //Should get a pit to add a seed in, then make sure it's okay: must
+        //already have seeds etc.
     }
     
     public void play() {
         while(!hasPlayerLost(turn % 2)) {
             if(players[turn % 2] > 0) { //Player has seeds in hand
-                Loc loc = getMove(turn % 2); //pit the player chose, should be a legal move
+                Loc loc = getMove(turn % 2); //pit the player chose, should be
+                //a legal move
                 //Pit pit = board[loc.getRow()][loc.getCol()];
                 stockEnter(loc, turn % 2);
             }
