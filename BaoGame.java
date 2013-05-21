@@ -97,6 +97,8 @@ public class BaoGame {
             //TODO: Get selection from player
         }
     }
+
+    
     
     public void Play() {
         int winner = 0;
@@ -113,11 +115,13 @@ public class BaoGame {
                 //seeds already in the selected pit
                 Loc selection = getSowLoc(player);
                 if(pitCanCapture(selection)) {
+                    int seeds = selection.getLocAcross().setSeeds(0);
                     players[player]--;
                     if(!selection.isKichwa(player) &&
                         !selection.isKimba(player)) {
                         //Player can choose where to start sowing
                         Loc start = getSowKichwa(player);
+                        sowFrom(start, seeds);
                         
 
                 

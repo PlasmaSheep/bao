@@ -13,20 +13,21 @@ public class Pit {
         return seeds;
     }
     
-    public boolean setSeeds(int num) {
+    public int setSeeds(int num) {
+        int oseeds = seeds;
         if(num > -1) {
             seeds = num;
-            return true;
+            return oseeds;
         }
-        return false;
+        return -1;
     }
     
-    public boolean addSeeds(int num) {
+    public int addSeeds(int num) {
+        int oseeds = seeds;
         if(seeds + num > -1) {
             seeds += num;
-            return true;
+            return oseeds;
         }
-        return false;
+        return -1;
     }
 }
-
