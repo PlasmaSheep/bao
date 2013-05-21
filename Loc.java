@@ -34,8 +34,15 @@ public class Loc {
         return c;
     }
     
-    public Loc getNextLoc(int dir) {
-        //-1 is the left kichwa, 1 is the right kichwa
+    public Loc getNearestKichwa() {
+        if(c < 4) {
+            return new Loc(r, 0);
+        } else {
+            return new Loc(r, 7);
+        }
+    }
+    
+    public Loc getNextLoc(int dir) { //-1 is player's left kichwa, 1 is right kichwa
         int add = 1;
         int nr = r;
         int nc = c;
@@ -51,21 +58,6 @@ public class Loc {
                 
         } else { //Player 2
         }
-    }
-
-    public boolean isKitchwa() {
-        if(isInner() && (c == 0 || c == 7)) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isKimbi() {
-        if(isInner() && (c == 1 || c == 6)) {
-            return true;
-        }
-        return false;
-    }
+                    
             
 }
-
