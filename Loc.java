@@ -25,6 +25,17 @@ public class Loc {
             return null;
         }
     }
+
+    private int getKichwaSowDir() {
+        //1 is from left kichwas from perspective of player 2,
+        //-1 is from right kichwas
+        if(c == 0) {
+            return 1;
+        } if(c == 7) {
+            return -1;
+        }
+        return 0;
+    }
     
     public int getRow() {
         return r;
@@ -56,6 +67,7 @@ public class Loc {
         return false;
     }
     
+    /*
     public Loc getNextLoc(int dir) { //-1 is player's left kichwa, 1 is right kichwa
         int add = 1;
         int nr = r;
@@ -71,7 +83,7 @@ public class Loc {
                 
                 
         } else { //Player 2
-        }
+        }*/
                     
             
 }

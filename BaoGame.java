@@ -91,14 +91,26 @@ public class BaoGame {
         }
     }
 
-    public Loc getSowKichwa(int player) {
+    private Loc getSowKichwa(int player) {
         Loc selection = new Loc(0, 0);
         while(!selection.isKichwa(player)) {
             //TODO: Get selection from player
         }
     }
 
-    
+    private void sowFrom(Loc start, int seeds) {
+        int dir = start.getKichwaSowDir();
+        Loc next = new Loc(start.getRow(), start.getCol();
+        
+        while(seeds > 0) {
+            if(next.getCol() + dir > 7 || next.getCol() + dir < 0) {
+                dir *= -1;
+                //TODO: change selection to outer row or inner row (mirror)
+                
+            seeds--;
+            getPit(getPit(next).addSeeds(1));
+            
+            
     
     public void Play() {
         int winner = 0;
