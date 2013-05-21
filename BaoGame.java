@@ -24,9 +24,23 @@ public class BaoGame {
     private int getTopRow(int player) {
         if(player == 0) {
             return 0;
-        } if(player == 1) {
+        } else if(player == 1) {
             return 2;
         }
+        return -1;
+    }
+
+    private int getInnerRow(int player) {
+        if(player == 0) {
+            return 1;
+        } else if(player == 1) {
+            return 2;
+        }
+        return -1;
+    }
+
+    private Pit getPit(Loc loc) {
+        return board[loc.getRow()][loc.getCol()];
     }
     
     private boolean playerHasNonSingletons(int player) {
@@ -39,8 +53,51 @@ public class BaoGame {
         }
         return false;
     }
-            
+
+    private boolean pitCanCapture(Loc loc) {
+        //Can only capture if the pit at loc is in an interior row and the
+        //pit across has seeds in it
+        if(loc.isInner()) {
+            if(getPit(loc.getLocAcross()).getSeeds() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
+
+    private boolean playerCanCapture(int player) {
+        int r = player.getInnerRow();
+        for(int c = 0; c < 8; c++) {
+            if(pitCanCapture(board[r][c])) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private Loc getSowLoc(int player) {
+        //TODO: code interaction with player once UI is finished
+        if(playerCanCapture(player)) {
+            //Player MUST capture
+            Loc selection = new Loc(0, 0);
+            while(!pitCanCapture(selection) &&
+                !getPit(selection).getSeeds() > 0) {
+                //TODO: Get location from player
+            }
+            return selection;
+        } else {
+            //Player can't capture
+            //TODO: what regulates this?
+        }
+    }
+
+    public Loc getSowKichwa(int player) {
+        Loc selection = new Loc(0, 0);
+        while(!selection.isKichwa(player)) {
+            //TODO: Get selection from player
+        }
+    }
+    
     public void Play() {
         int winner = 0;
         int player = 0;
@@ -52,17 +109,27 @@ public class BaoGame {
             }
             if(players[player] > 0) { //Namua
                 //TODO: User input: where to put the seed
-                //restrictions: must capture if can capture, must have/
-                //seeds already there
-                Loc loc = getSowLoc(player);
+                //restrictions: must capture if can capture, must have
+                //seeds already in the selected pit
+                Loc selection = getSowLoc(player);
+                if(pitCanCapture(selection)) {
+                    players[player]--;
+                    if(!selection.isKichwa(player) &&
+                        !selection.isKimba(player)) {
+                        //Player can choose where to start sowing
+                        Loc start = getSowKichwa(player);
+                        
+
+                
+                /*Loc loc = getSowLoc(player);
                 Loc aloc = loc.getLocAcross();
                 players[player]--;
-                if(board[aloc.getRow()][aloc.getCol()].getSeeds() > 1) {
+                if(getPit(aloc).getSeeds() > 1) {
                     //Capture happened
                     Loc sowStart = loc.getNearestKichwa();
                     if(!loc.isKichwa() && !loc.isKimbi() {
                         Loc sowStart = getKichwaChoice(player);
-                    }
+                    }*/
                     
                 
                 

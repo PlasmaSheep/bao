@@ -41,6 +41,20 @@ public class Loc {
             return new Loc(r, 7);
         }
     }
+
+    public boolean isKichwa(int player) {
+        if(player + 1 == r && (c == 0 || c == 7)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isKimbi(int player) {
+        if(player + 1 == r && (c == 1 || c == 6)) {
+            return true;
+        }
+        return false;
+    }
     
     public Loc getNextLoc(int dir) { //-1 is player's left kichwa, 1 is right kichwa
         int add = 1;
