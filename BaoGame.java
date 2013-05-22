@@ -1,4 +1,3 @@
-
 import java.util.Arrays;
 
 public class BaoGame {
@@ -100,15 +99,40 @@ public class BaoGame {
 
     private void sowFrom(Loc start, int seeds) {
         int dir = start.getKichwaSowDir();
-        Loc next = new Loc(start.getRow(), start.getCol();
+        Loc next = new Loc(start.getRow(), start.getCol());
         
         while(seeds > 0) {
-            if(next.getCol() + dir > 7 || next.getCol() + dir < 0) {
+            int c = next.getCol();
+            int r = next.getRow();
+            if(c + dir > 7 || c + dir < 0) {
+                //Reached the end of row, move in opposite direction on other row
                 dir *= -1;
                 //TODO: change selection to outer row or inner row (mirror)
-                
+                if(r == 1 || r == 3) {
+                    //next = new Loc(r--, c);
+                    r--;
+                } else {
+                    //next = new Loc(r++, c);
+                    r++;
+                }
+            }
+            next = new Loc(c + dir, r);
+            
             seeds--;
             getPit(getPit(next).addSeeds(1));
+        }
+        
+        if(getPit(next.getLocAcross()).getSeeds() > 0) {
+            //Capture has happened
+            int sownum = getPit(next.getLocAcross()).setSeeds(0);
+            if(!next.isKichwa() && !next.isKimbi()) {
+                sowFrom(getSowKichwa(next.whosePit()), sownum);
+            } else {
+                sowFrom(getNearestKichwa(next), sownum);
+            }
+        }
+        
+        
             
             
     

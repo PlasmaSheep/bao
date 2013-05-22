@@ -67,6 +67,16 @@ public class Loc {
         return false;
     }
     
+    public int whosePit() {
+        if(r == 0 || r == 1) {
+            return 0;
+        } else if(r == 2 || r == 3) {
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+    
     /*
     public Loc getNextLoc(int dir) { //-1 is player's left kichwa, 1 is right kichwa
         int add = 1;
