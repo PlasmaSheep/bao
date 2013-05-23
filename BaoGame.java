@@ -74,6 +74,14 @@ public class BaoGame {
         return false;
     }
 
+    private Loc getNyumbaLoc(int player) {
+        if(player == 0) {
+            return new Loc(1, 3);
+        } else {
+            return new Loc(2, 4);
+        }
+    }
+
     private Loc getSowLoc(int player) {
         //TODO: code interaction with player once UI is finished
         if(playerCanCapture(player)) {
@@ -86,7 +94,27 @@ public class BaoGame {
             return selection;
         } else {
             //Player can't capture
-            //TODO: what regulates this?
+            Loc selection = new Loc(0, 0);
+            boolean onlyNyumbaHasSeeds = true;
+            for(int c = 0; c < 8; c++) {
+                if(board[getInnerRow(player)][c].getSeeds() > 1) {
+                    onlyNyumbaHasSeeds = false;
+                    break;
+                }
+            }
+            if(onlyNyumbaHasSeeds) {
+                while(selection.getRow() != getInnerRow(player) ||
+                    !getPit(selection).getSeeds() > 1) {
+                    //TODO: get location from player
+                }
+            } else {
+                while(selection.getRow() != getInnerRow(player) ||
+                    getPit(selection) instanceof Nyumba ||
+                    !getPit(selection).getSeeds() > 1) {
+                    //TODO: get location from player
+                }
+            }
+                
         }
     }
 
@@ -122,11 +150,13 @@ public class BaoGame {
             getPit(getPit(next).addSeeds(1));
         }
 
-        if(getPit(next.getLocAcross()).getSeeds() > 0) {
+        if(getPit(next.getLocAcross()).getSeeds() > 0 &&
+            getPit(next).getSeeds > 1) {
             //Capture has happened
             int sownum = getPit(next.getLocAcross()).setSeeds(0);
             if(!next.isKichwa() && !next.isKimbi()) {
-                sowFrom(getSowKichwa(next.whosePit()), sownum);
+                //sowFrom(getSowKichwa(next.whosePit()), sownum);
+                sowFrom(start, sownum);
             } else {
                 sowFrom(getNearestKichwa(next), sownum);
             }
@@ -138,7 +168,7 @@ public class BaoGame {
             boolean safari = getSafariChoice(player);
             if(safari) {
                 //Nyumba should no longer be functional
-                sowFrom(next, getPit(next).setSeeds(0));
+                sowFrom(start, getPit(next).setSeeds(0));
             } else {
                 break;
             }
@@ -148,7 +178,7 @@ public class BaoGame {
     public void Play() {
         int winner = 0;
         int player = 0;
-        while(winner == 0) {
+        while(true) {
             if(isRowEmpty(player) || !playerHasNonSingletons(player)) {
                 //player's inner row is empty
                 winner = player % 2;
@@ -162,100 +192,131 @@ public class BaoGame {
                 if(pitCanCapture(selection)) {
                     int seeds = selection.getLocAcross().setSeeds(0);
                     players[player]--;
-                    if(!selection.isKichwa(player) &&
-                    !selection.isKimba(player)) {
+                    if(getPit(selection) instanceof Nyumba &&
+                        getPit(selection).isFunctional()) {
+                        //TODO: which way to sow from nyumba from player
+                        getPit(selection).addSeeds(-1);
+                        int dir = getTaxDir(player);
+                        for(int i = 1; i >= 2; i++) {
+                            Loc taxloc = new Loc(selection.getRow(),
+                                selection.getCol() + i * dir;
+                            getPit(taxloc)).addSeeds(1);
+                            if(i == 2 && getPit(taxloc).getSeeds() > 1) {
+                                //TODO: fix this
+                                sowFrom(taxloc, getPit(taxloc).getSeeds());
+                            }
+                        }
+                    } else if(!selection.isKichwa(player) &&
+                        !selection.isKimba(player)) {
                         //Player can choose where to start sowing
                         Loc start = getSowKichwa(player);
                         sowFrom(start, seeds);
                     } else {
-                        if(getPit(selection) instanceof Nyumba && getPit(selection).isFunctional()) {
-                            //TODO: which way to sow from nyumba from player
-                            getPit(selection).addSeeds(-1);
-                            int dir = getTaxDir(player);
-                            for(int i = 1; i >= 2; i++) {
-                                Loc taxloc = new Loc(selection.getRow(), selection.getCol() + i * dir;
-                                getPit(taxloc)).addSeeds(1);
-                                if(i == 2 && getPit(taxloc).getSeeds() > 1) {
-                                    sowFrom(taxloc, getPit(taxloc).getSeeds());
-                                }
-                            }
-                        }  
-
-                        /*Loc loc = getSowLoc(player);
-                        Loc aloc = loc.getLocAcross();
-                        players[player]--;
-                        if(getPit(aloc).getSeeds() > 1) {
-                        //Capture happened
-                        Loc sowStart = loc.getNearestKichwa();
-                        if(!loc.isKichwa() && !loc.isKimbi() {
-                        Loc sowStart = getKichwaChoice(player);
-                        }*/
-
-                        /*private boolean placeSeed(int row, int col, int player) {
-                        if(players[player] > 0) {
-                        board[row][col].addSeeds(1);
-                        players[player]--;
-                        return true;
-                        }
-                        return false;
-                        }
-
-                        private boolean hasPlayerLost(int player) {
-                        if(!canPlayerMove(player) || isRowEmpty(player + 1)) {
-                        return true;
-                        }
-                        return false;
-                        }
-
-                        private boolean canPlayerMove(int player) {
-                        //Player is either 0 or 1
-
-                        }
-
-                        private boolean isRowEmpty(int row) {
-                        for(int col = 0; col <= 8; col++) {
-                        if(board[row][col].getSeeds() != 0) {
-                        return false;
-                        }
-                        }
-                        return true;
-                        }
-
-                        private void sow(Location loc) {
-                        Loc across = loc.getLocAcross();
-                        Pit apit = board[across.getRow()][across.getCol()];
-                        if(apit.getSeeds() > 0) {
-                        //Capture is possible, therefore capture
-                        int seeds = apit.getSeeds();
-                        apit.setSeeds(0);
-                        }
-                        }
-
-                        private void stockEnter(Location loc, int player) {
-                        //Introduce a seed from the player's stock to the board
-                        board[loc.getRow()][loc.getCol()].addSeeds(1);
-                        players[player]--;
-                        sow(loc);
-                        }
-
-                        public Loc getMove(int player) {
-                        //Should get a pit to add a seed in, then make sure it's okay: must
-                        //already have seeds etc.
-                        }
-
-                        public void play() {
-                        while(!hasPlayerLost(turn % 2)) {
-                        if(players[turn % 2] > 0) { //Player has seeds in hand
-                        Loc loc = getMove(turn % 2); //pit the player chose, should be
-                        //a legal move
-                        //Pit pit = board[loc.getRow()][loc.getCol()];
-                        stockEnter(loc, turn % 2);
-                        }
-                        turn++;
-                        }
-                        }
-
-                        private Pit getPit(Loc loc) {
-                        return board[loc.getRow()][loc.getCol()];
-                        }*/
+                        //Is a kichwa, player can't choose.
+                        sowFrom(selection.getNearestKichwa(), seeds);
                     }
+                } else {
+                    //Takasa
+                    getPit(selection).addSeeds(1);
+                    if(getPit(selection) instanceof Nyumba) {
+                        //TODO: tax the nyumba
+                    } else {
+                        int seeds = getPit(selection).setSeeds(0);
+                        Loc start = getSowKichwa(player);
+                        sowFrom(start, seeds); //TODO: special takasa rules
+                        //not from kichwa
+                    }
+                }
+            } else { //mtaji
+                if(playerCanCapture(player) {
+                    //SELECT HOLE WITH 2 SEEDS
+                    //SELECT DIRECTION
+                    //GO IN THAT DIRECTION
+                } else {
+                    getSowLoc(player) //TODO: special mtaji rules
+                    int dir = getSowDir(player); //TODO: write this method
+                    
+                }
+            }
+        }
+    }
+}
+                    
+
+/*Loc loc = getSowLoc(player);
+Loc aloc = loc.getLocAcross();
+players[player]--;
+if(getPit(aloc).getSeeds() > 1) {
+//Capture happened
+Loc sowStart = loc.getNearestKichwa();
+if(!loc.isKichwa() && !loc.isKimbi() {
+Loc sowStart = getKichwaChoice(player);
+}*/
+
+/*private boolean placeSeed(int row, int col, int player) {
+if(players[player] > 0) {
+board[row][col].addSeeds(1);
+players[player]--;
+return true;
+}
+return false;
+}
+
+private boolean hasPlayerLost(int player) {
+if(!canPlayerMove(player) || isRowEmpty(player + 1)) {
+return true;
+}
+return false;
+}
+
+private boolean canPlayerMove(int player) {
+//Player is either 0 or 1
+
+}
+
+private boolean isRowEmpty(int row) {
+for(int col = 0; col <= 8; col++) {
+if(board[row][col].getSeeds() != 0) {
+return false;
+}
+}
+return true;
+}
+
+private void sow(Location loc) {
+Loc across = loc.getLocAcross();
+Pit apit = board[across.getRow()][across.getCol()];
+if(apit.getSeeds() > 0) {
+//Capture is possible, therefore capture
+int seeds = apit.getSeeds();
+apit.setSeeds(0);
+}
+}
+
+private void stockEnter(Location loc, int player) {
+//Introduce a seed from the player's stock to the board
+board[loc.getRow()][loc.getCol()].addSeeds(1);
+players[player]--;
+sow(loc);
+}
+
+public Loc getMove(int player) {
+//Should get a pit to add a seed in, then make sure it's okay: must
+//already have seeds etc.
+}
+
+public void play() {
+while(!hasPlayerLost(turn % 2)) {
+if(players[turn % 2] > 0) { //Player has seeds in hand
+Loc loc = getMove(turn % 2); //pit the player chose, should be
+//a legal move
+//Pit pit = board[loc.getRow()][loc.getCol()];
+stockEnter(loc, turn % 2);
+}
+turn++;
+}
+}
+
+private Pit getPit(Loc loc) {
+return board[loc.getRow()][loc.getCol()];
+}*/
