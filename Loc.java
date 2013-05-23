@@ -77,6 +77,7 @@ public class Loc {
         }
     }
     
+    
     /*
     public Loc getNextLoc(int dir) { //-1 is player's left kichwa, 1 is right kichwa
         int add = 1;
