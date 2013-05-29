@@ -50,19 +50,6 @@ public class BaoGame {
     }
 
     /**
-     * Check if a player's "top" (northernmost, row with smallest number)
-     * is empty.
-     */
-    private int getTopRow(int player) {
-        if(player == 0) {
-            return 0;
-        } else if(player == 1) {
-            return 2;
-        }
-        return -1;
-    }
-
-    /**
      * Get the row number of a player's inner row (row closest to the middle).
      */
     private int getInnerRow(int player) {
@@ -94,7 +81,7 @@ public class BaoGame {
      * it, false otherwise.
      */
     private boolean playerHasNonSingletons(int player) {
-        for(int r = getTopRow(player); r <= getTopRow(player) + 1; r++) {
+        for(int r = player * 2; r <= player * 2 + 1; r++) {
             for(int c = 0; c < 9; c++) {
                 if(board[r][c].getSeeds() > 1) {
                     return true;
