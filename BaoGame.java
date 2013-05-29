@@ -9,15 +9,27 @@ public class BaoGame {
         board = new Pit[4][8];
         players = new int[2]; //Player 0 on top, player 1 not
         Arrays.fill(players, 22);
+        //Arrays.fill(board, new Pit());
         turn = 1;
+        for(int r = 0; r < 4; r++) {
+            for(int c = 0; c < 8; c++) {
+                if((r == 1 && c == 3) || (r == 2 && c == 4)) {
+                    board[r][c] = new Nyumba(6);
+                } else if((r == 1 && c == 2) && (r == 1 && c == 2)) {
+                    board[r][c] = new Pit(2);
+                } else {
+                    board[r][c] = new Pit();
+                }
+            }
+        }
+        /*board[1][3] = new Nyumba(6);
+        board[2][4] = new Nyumba(6);
 
-        board[1][3].setSeeds(6);
         board[1][2].setSeeds(2);
         board[1][1].setSeeds(2);
 
-        board[2][4].setSeeds(6);
         board[1][5].setSeeds(2);
-        board[1][6].setSeeds(2);
+        board[1][6].setSeeds(2);*/
     }
 
     private int getTopRow(int player) {
@@ -65,9 +77,9 @@ public class BaoGame {
     }
 
     private boolean playerCanCapture(int player) {
-        int r = player.getInnerRow();
+        int r = getInnerRow(player);
         for(int c = 0; c < 8; c++) {
-            if(pitCanCapture(board[r][c])) {
+            if(pitCanCapture(new Loc(r, c))) {
                 return true;
             }
         }
@@ -88,7 +100,7 @@ public class BaoGame {
             //Player MUST capture
             Loc selection = new Loc(0, 0);
             while(!pitCanCapture(selection) &&
-            !getPit(selection).getSeeds() > 0) {
+            !(getPit(selection).getSeeds() > 0)) {
                 //TODO: Get location from player
             }
             return selection;
@@ -104,13 +116,13 @@ public class BaoGame {
             }
             if(onlyNyumbaHasSeeds) {
                 while(selection.getRow() != getInnerRow(player) ||
-                    !getPit(selection).getSeeds() > 1) {
+                    !(getPit(selection).getSeeds() > 1)) {
                     //TODO: get location from player
                 }
             } else {
                 while(selection.getRow() != getInnerRow(player) ||
                     getPit(selection) instanceof Nyumba ||
-                    !getPit(selection).getSeeds() > 1) {
+                    !(getPit(selection).getSeeds() > 1)) {
                     //TODO: get location from player
                 }
             }
@@ -147,18 +159,18 @@ public class BaoGame {
             next = new Loc(c + dir, r);
 
             seeds--;
-            getPit(getPit(next).addSeeds(1));
+            getPit(next).addSeeds(1);
         }
 
         if(getPit(next.getLocAcross()).getSeeds() > 0 &&
-            getPit(next).getSeeds > 1) {
+            getPit(next).getSeeds() > 1) {
             //Capture has happened
             int sownum = getPit(next.getLocAcross()).setSeeds(0);
             if(!next.isKichwa() && !next.isKimbi()) {
                 //sowFrom(getSowKichwa(next.whosePit()), sownum);
                 sowFrom(start, sownum);
             } else {
-                sowFrom(getNearestKichwa(next), sownum);
+                sowFrom(next.getNearestKichwa(), sownum);
             }
         }
 
@@ -199,8 +211,8 @@ public class BaoGame {
                         int dir = getTaxDir(player);
                         for(int i = 1; i >= 2; i++) {
                             Loc taxloc = new Loc(selection.getRow(),
-                                selection.getCol() + i * dir;
-                            getPit(taxloc)).addSeeds(1);
+                                selection.getCol() + i * dir);
+                            getPit(taxloc).addSeeds(1);
                             if(i == 2 && getPit(taxloc).getSeeds() > 1) {
                                 //TODO: fix this
                                 sowFrom(taxloc, getPit(taxloc).getSeeds());
@@ -228,12 +240,12 @@ public class BaoGame {
                     }
                 }
             } else { //mtaji
-                if(playerCanCapture(player) {
+                if(playerCanCapture(player)) {
                     //SELECT HOLE WITH 2 SEEDS
                     //SELECT DIRECTION
                     //GO IN THAT DIRECTION
                 } else {
-                    getSowLoc(player) //TODO: special mtaji rules
+                    getSowLoc(player); //TODO: special mtaji rules
                     int dir = getSowDir(player); //TODO: write this method
                     
                 }

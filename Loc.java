@@ -26,7 +26,7 @@ public class Loc {
         }
     }
 
-    private int getKichwaSowDir() {
+    public int getKichwaSowDir() {
         //1 is from left kichwas from perspective of player 2,
         //-1 is from right kichwas
         if(c == 0) {
@@ -55,6 +55,20 @@ public class Loc {
 
     public boolean isKichwa(int player) {
         if(player + 1 == r && (c == 0 || c == 7)) {
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean isKichwa() {
+        if((r == 1 || r == 2) && (c == 0 || c == 7)) {
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean isKimbi() {
+        if((r == 1 || r == 2) && (c == 1 || c == 6)) {
             return true;
         }
         return false;
