@@ -1,3 +1,6 @@
+//http://www.fdg.unimaas.nl/educ/donkers/games/Bao/rules.html
+//http://mancala.wikia.com/wiki/Bao_la_Kiswahili
+
 import java.util.Arrays;
 
 public class BaoGame {
@@ -33,7 +36,10 @@ public class BaoGame {
         board[1][5].setSeeds(2);
         board[1][6].setSeeds(2);*/
     }
-
+    
+    /**
+     * Check if the given row has only pits with no stones.
+     */
     private boolean isRowEmpty(int row) {
         for(int col = 0; col <= 7; col++) {
             if(board[row][col].getSeeds() != 0) {
@@ -43,6 +49,10 @@ public class BaoGame {
         return true;
     }
 
+    /**
+     * Check if a player's "top" (northernmost, row with smallest number)
+     * is empty.
+     */
     private int getTopRow(int player) {
         if(player == 0) {
             return 0;
@@ -52,6 +62,9 @@ public class BaoGame {
         return -1;
     }
 
+    /**
+     * Get the row number of a player's inner row (row closest to the middle).
+     */
     private int getInnerRow(int player) {
         if(player == 0) {
             return 1;
@@ -61,10 +74,17 @@ public class BaoGame {
         return -1;
     }
 
+    /**
+     * Get the pit described by loc.
+     */
     private Pit getPit(Loc loc) {
         return board[loc.getRow()][loc.getCol()];
     }
 
+    /**
+     * Return true if a player has at least one pit with more than one stone in
+     * it, false otherwise.
+     */
     private boolean playerHasNonSingletons(int player) {
         for(int r = getTopRow(player); r <= getTopRow(player) + 1; r++) {
             for(int c = 0; c < 9; c++) {
@@ -76,6 +96,9 @@ public class BaoGame {
         return false;
     }
 
+    /**
+     * Return true if the given pit can capture the pit across.
+     */
     private boolean pitCanCapture(Loc loc) {
         //Can only capture if the pit at loc is in an interior row and the
         //pit across has seeds in it
@@ -87,6 +110,9 @@ public class BaoGame {
         return false;
     }
 
+    /**
+     * Return true if any of the player's pits can capture the pit across.
+     */
     private boolean playerCanCapture(int player) {
         int r = getInnerRow(player);
         for(int c = 0; c < 8; c++) {
@@ -173,7 +199,8 @@ public class BaoGame {
             int c = next.getCol();
             int r = next.getRow();
             if(c + dir > 7 || c + dir < 0) {
-                //Reached the end of row, move in opposite direction on other row
+                //Reached the end of row, move in opposite
+                //direction on other row
                 dir *= -1;
                 if(r == 1 || r == 3) {
                     //next = new Loc(r--, c);
@@ -241,6 +268,8 @@ public class BaoGame {
                             getPit(taxloc).addSeeds(1);
                             if(i == 2 && getPit(taxloc).getSeeds() > 1) {
                                 //TODO: fix this
+                                //After the nyumba is taxed things are sown from
+                                //that next pit
                                 sowFrom(taxloc, getPit(taxloc).getSeeds(), player);
                             }
                         }
