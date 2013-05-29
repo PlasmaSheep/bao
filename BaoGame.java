@@ -32,6 +32,15 @@ public class BaoGame {
         board[1][6].setSeeds(2);*/
     }
 
+    private boolean isRowEmpty(int row) {
+        for(int col = 0; col <= 8; col++) {
+            if(board[row][col].getSeeds() != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private int getTopRow(int player) {
         if(player == 0) {
             return 0;
@@ -86,12 +95,22 @@ public class BaoGame {
         return false;
     }
 
+    private int getTaxDir(int player) {
+        //TODO: user input
+        return 1; //or -1 depending
+    } 
+
     private Loc getNyumbaLoc(int player) {
         if(player == 0) {
             return new Loc(1, 3);
         } else {
             return new Loc(2, 4);
         }
+    }
+
+    private int getSowDir(int player) {
+        //TODO: user input
+        return 1; //or -1 depending
     }
 
     private Loc getSowLoc(int player) {
@@ -128,6 +147,7 @@ public class BaoGame {
             }
                 
         }
+        return new Loc(0, 0); //TODO: fix thisg
     }
 
     private Loc getSowKichwa(int player) {
@@ -135,9 +155,15 @@ public class BaoGame {
         while(!selection.isKichwa(player)) {
             //TODO: Get selection from player
         }
+        return selection;
+    }
+    
+    private boolean getSafariChoice(int player) {
+        //TODO: get selection from player
+        return true;
     }
 
-    private void sowFrom(Loc start, int seeds) {
+    private void sowFrom(Loc start, int seeds, int player) {
         int dir = start.getKichwaSowDir();
         Loc next = new Loc(start.getRow(), start.getCol());
 
@@ -168,9 +194,9 @@ public class BaoGame {
             int sownum = getPit(next.getLocAcross()).setSeeds(0);
             if(!next.isKichwa() && !next.isKimbi()) {
                 //sowFrom(getSowKichwa(next.whosePit()), sownum);
-                sowFrom(start, sownum);
+                sowFrom(start, sownum, player);
             } else {
-                sowFrom(next.getNearestKichwa(), sownum);
+                sowFrom(next.getNearestKichwa(), sownum, player);
             }
         }
 
@@ -180,9 +206,7 @@ public class BaoGame {
             boolean safari = getSafariChoice(player);
             if(safari) {
                 //Nyumba should no longer be functional
-                sowFrom(start, getPit(next).setSeeds(0));
-            } else {
-                break;
+                sowFrom(start, getPit(next).setSeeds(0), player);
             }
         }
     }
@@ -202,7 +226,7 @@ public class BaoGame {
                 //seeds already in the selected pit
                 Loc selection = getSowLoc(player);
                 if(pitCanCapture(selection)) {
-                    int seeds = selection.getLocAcross().setSeeds(0);
+                    int seeds = getPit(selection.getLocAcross()).setSeeds(0);
                     players[player]--;
                     if(getPit(selection) instanceof Nyumba &&
                         getPit(selection).isFunctional()) {
@@ -215,17 +239,17 @@ public class BaoGame {
                             getPit(taxloc).addSeeds(1);
                             if(i == 2 && getPit(taxloc).getSeeds() > 1) {
                                 //TODO: fix this
-                                sowFrom(taxloc, getPit(taxloc).getSeeds());
+                                sowFrom(taxloc, getPit(taxloc).getSeeds(), player);
                             }
                         }
                     } else if(!selection.isKichwa(player) &&
-                        !selection.isKimba(player)) {
+                        !selection.isKimbi(player)) {
                         //Player can choose where to start sowing
                         Loc start = getSowKichwa(player);
-                        sowFrom(start, seeds);
+                        sowFrom(start, seeds, player);
                     } else {
                         //Is a kichwa, player can't choose.
-                        sowFrom(selection.getNearestKichwa(), seeds);
+                        sowFrom(selection.getNearestKichwa(), seeds, player);
                     }
                 } else {
                     //Takasa
@@ -235,7 +259,7 @@ public class BaoGame {
                     } else {
                         int seeds = getPit(selection).setSeeds(0);
                         Loc start = getSowKichwa(player);
-                        sowFrom(start, seeds); //TODO: special takasa rules
+                        sowFrom(start, seeds, player); //TODO: special takasa rules
                         //not from kichwa
                     }
                 }

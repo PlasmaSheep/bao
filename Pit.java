@@ -30,4 +30,8 @@ public class Pit {
         }
         return -1;
     }
+
+    public boolean isFunctional() {
+        return false;
+    }
 }
