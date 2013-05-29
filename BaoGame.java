@@ -3,6 +3,8 @@
 
 import java.util.Arrays;
 //TODO: current player should be instance variable
+//TODO: replace all dir getting methods with just one: get cw vs ccw
+//TODO: ui methods: ask custom boolean question, ask custom cw vs ccw question
 public class BaoGame {
     Pit[][] board;
     int[] players;
@@ -60,13 +62,10 @@ public class BaoGame {
     }
 
     private int getOuterRow(int player) {
-        if(player == 0) {
-            return 0;
-        } if (player == 1) {
-            return 3;
-        } else {
-            return -1;
+        if(player == 0 || player == 1) {
+            return player * 3;
         }
+        return -1;
     }
 
     /**
@@ -132,11 +131,10 @@ public class BaoGame {
     } 
 
     private Loc getNyumbaLoc(int player) {
-        if(player == 0) {
-            return new Loc(1, 3);
-        } else {
-            return new Loc(2, 4);
-        }
+        if(player == 0 || player == 1) {
+            return new Loc(player + 1, player + 3);
+        } 
+        return new Loc(-1, -1);
     }
 
     private int getSowDir(int player) {
@@ -295,7 +293,8 @@ public class BaoGame {
                     } else {
                         int seeds = getPit(selection).setSeeds(0);
                         Loc start = getSowKichwa(player);
-                        sowFrom(start, seeds, player); //TODO: special takasa rules
+                        sowFrom(start, seeds, player);
+                        //TODO: special takasa rules
                         //not from kichwa
                     }
                 }
