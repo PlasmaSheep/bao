@@ -313,6 +313,7 @@ public class BaoGame {
                 }
             } else { //mtaji
                 if(playerCanCapture(player)) {
+                    captureingMove = true;
                     //TODO: player input
                     Loc capture = getCapturingPit(player);
                     int dir = getDir(player);
