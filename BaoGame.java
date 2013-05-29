@@ -66,12 +66,20 @@ public class BaoGame {
      * Get the row number of a player's inner row (row closest to the middle).
      */
     private int getInnerRow(int player) {
-        if(player == 0) {
-            return 1;
-        } else if(player == 1) {
-            return 2;
+        if(player == 0 || player == 1) {
+            return player + 1;
         }
         return -1;
+    }
+
+    private int getOuterRow(int player) {
+        if(player == 0) {
+            return 0;
+        } if (player == 1) {
+            return 3;
+        } else {
+            return -1;
+        }
     }
 
     /**
@@ -93,6 +101,14 @@ public class BaoGame {
                 }
             }
         }
+        return false;
+    }
+
+    private boolean rowHasNonSingletons(int r) {
+        for(int c = 0; c < 8; c++) {
+            if(board[r][c].getSeeds() > 1) {
+                return true;
+            }
         return false;
     }
 
@@ -193,6 +209,7 @@ public class BaoGame {
 
     private void sowFrom(Loc start, int seeds, int player) {
         int dir = start.getKichwaSowDir();
+        int dir = getSowDir(player); //TODO: write this method
         Loc next = new Loc(start.getRow(), start.getCol());
 
         while(seeds > 0) {
@@ -303,8 +320,15 @@ public class BaoGame {
                     sowFrom(capture, getPit(capture.getLocAcross()).getSeeds(),
                         player);
                 } else {
-                    getSowLoc(player); //TODO: special mtaji rules
-                    int dir = getSowDir(player); //TODO: write this method
+                    if(rowHasNonSingletons(getInnerRow(player)) {
+                        //TODO: special rules in that method (row specific)
+                        Loc sow = getSowLoc(player, getInnerRow(player));
+                    } else {
+                        Loc sow = getSowLoc(player, getOuterRow(player));
+                    }
+                    int seeds = getPit(sow).setSeeds(0);
+                    //This is not sown from the kichwa
+                    sowFrom(sow, seeds, player);
                     
                 }
             }
