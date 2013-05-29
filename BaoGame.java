@@ -4,6 +4,7 @@ public class BaoGame {
     Pit[][] board;
     int[] players;
     int turn;
+    boolean captureingMove;
 
     public BaoGame() {
         board = new Pit[4][8];
@@ -22,6 +23,7 @@ public class BaoGame {
                 }
             }
         }
+        capturingMove = false;
         /*board[1][3] = new Nyumba(6);
         board[2][4] = new Nyumba(6);
 
@@ -33,7 +35,7 @@ public class BaoGame {
     }
 
     private boolean isRowEmpty(int row) {
-        for(int col = 0; col <= 8; col++) {
+        for(int col = 0; col <= 7; col++) {
             if(board[row][col].getSeeds() != 0) {
                 return false;
             }
@@ -173,7 +175,6 @@ public class BaoGame {
             if(c + dir > 7 || c + dir < 0) {
                 //Reached the end of row, move in opposite direction on other row
                 dir *= -1;
-                //TODO: change selection to outer row or inner row (mirror)
                 if(r == 1 || r == 3) {
                     //next = new Loc(r--, c);
                     r--;
@@ -202,9 +203,8 @@ public class BaoGame {
 
         if(getPit(next) instanceof Nyumba && getPit(next).isFunctional()) {
             //TODO: check if user wants to safari or stop
-            //TODO: can't safari if non capturing move
             boolean safari = getSafariChoice(player);
-            if(safari) {
+            if(safari && capturingMove) {
                 //Nyumba should no longer be functional
                 sowFrom(start, getPit(next).setSeeds(0), player);
             }
@@ -215,6 +215,7 @@ public class BaoGame {
         int winner = 0;
         int player = 0;
         while(true) {
+            captureingMove = false;
             if(isRowEmpty(player) || !playerHasNonSingletons(player)) {
                 //player's inner row is empty
                 winner = player % 2;
@@ -226,6 +227,7 @@ public class BaoGame {
                 //seeds already in the selected pit
                 Loc selection = getSowLoc(player);
                 if(pitCanCapture(selection)) {
+                    capturingMove = true;
                     int seeds = getPit(selection.getLocAcross()).setSeeds(0);
                     players[player]--;
                     if(getPit(selection) instanceof Nyumba &&
