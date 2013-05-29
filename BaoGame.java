@@ -13,9 +13,9 @@ public class BaoGame {
         board = new Pit[4][8];
         players = new int[2]; //Player 0 on top, player 1 not
         Arrays.fill(players, 22);
-        //Arrays.fill(board, new Pit());
+        Arrays.fill(board, new Pit());
         turn = 1;
-        for(int r = 0; r < 4; r++) {
+        /*for(int r = 0; r < 4; r++) {
             for(int c = 0; c < 8; c++) {
                 if((r == 1 && c == 3) || (r == 2 && c == 4)) {
                     board[r][c] = new Nyumba(6);
@@ -25,16 +25,16 @@ public class BaoGame {
                     board[r][c] = new Pit();
                 }
             }
-        }
+        }*/
         capturingMove = false;
-        /*board[1][3] = new Nyumba(6);
+        board[1][3] = new Nyumba(6);
         board[2][4] = new Nyumba(6);
 
         board[1][2].setSeeds(2);
         board[1][1].setSeeds(2);
 
         board[1][5].setSeeds(2);
-        board[1][6].setSeeds(2);*/
+        board[1][6].setSeeds(2);
     }
     
     /**
@@ -287,7 +287,8 @@ public class BaoGame {
                                 //TODO: fix this
                                 //After the nyumba is taxed things are sown from
                                 //that next pit
-                                sowFrom(taxloc, getPit(taxloc).getSeeds(), player);
+                                sowFrom(taxloc, getPit(taxloc).getSeeds(),
+                                    player);
                             }
                         }
                     } else if(!selection.isKichwa(player) &&
