@@ -5,18 +5,21 @@ import java.util.Arrays;
 //TODO: current player should be instance variable
 //TODO: replace all dir getting methods with just one: get cw vs ccw
 //TODO: ui methods: ask custom boolean question, ask custom cw vs ccw question
+//TODO: ui methods: ask custom pit selection question
 public class BaoGame {
     Pit[][] board;
     int[] players;
     int turn;
-    boolean captureingMove;
+    boolean capturingMove;
+    int currentPlayer;
 
     public BaoGame() {
         board = new Pit[4][8];
         players = new int[2]; //Player 0 on top, player 1 not
         Arrays.fill(players, 22);
         Arrays.fill(board, new Pit());
-        turn = 1;
+        turn = 0;
+        currentPlayer = 0; //At any moment, current player is turn % 2.
         /*for(int r = 0; r < 4; r++) {
             for(int c = 0; c < 8; c++) {
                 if((r == 1 && c == 3) || (r == 2 && c == 4)) {
@@ -95,6 +98,7 @@ public class BaoGame {
             if(board[r][c].getSeeds() > 1) {
                 return true;
             }
+        }
         return false;
     }
 
@@ -123,6 +127,11 @@ public class BaoGame {
             }
         }
         return false;
+    }
+    
+    private Loc getLocSelection(int player) {
+        //TODO: write this method
+        return new Loc(1, 1);
     }
 
     private int getTaxDir(int player) {
@@ -193,11 +202,12 @@ public class BaoGame {
     }
 
     private void sowFrom(Loc start, int seeds, int player) {
-        int dir = start.getKichwaSowDir();
+        //private void sowFrom(Loc start, int seeds) {
+        //int dir = start.getKichwaSowDir();
         int dir = getSowDir(player); //TODO: write this method
         Loc next = new Loc(start.getRow(), start.getCol());
 
-        while(seeds > 0) {
+        while(seeds > 0) { //Iterate until seeds run out
             int c = next.getCol();
             int r = next.getRow();
             if(c + dir > 7 || c + dir < 0) {
@@ -205,10 +215,8 @@ public class BaoGame {
                 //direction on other row
                 dir *= -1;
                 if(r == 1 || r == 3) {
-                    //next = new Loc(r--, c);
                     r--;
                 } else {
-                    //next = new Loc(r++, c);
                     r++;
                 }
             }
@@ -219,8 +227,9 @@ public class BaoGame {
         }
 
         if(getPit(next.getLocAcross()).getSeeds() > 0 &&
-            getPit(next).getSeeds() > 1) {
-            //Capture has happened
+            getPit(next).getSeeds() > 1 && capturingMove == true) {
+            //Capture has happened, is a capturing move,
+            //so capture
             int sownum = getPit(next.getLocAcross()).setSeeds(0);
             if(!next.isKichwa() && !next.isKimbi()) {
                 //sowFrom(getSowKichwa(next.whosePit()), sownum);
@@ -240,30 +249,28 @@ public class BaoGame {
         }
     }
 
-    public void Play() {
-        int winner = 0;
-        int player = 0;
+    public int Play() {
         while(true) {
-            captureingMove = false;
-            if(isRowEmpty(player) || !playerHasNonSingletons(player)) {
-                //player's inner row is empty
-                winner = player % 2;
-                break;
+            capturingMove = false;
+            if(isRowEmpty(currentPlayer) ||
+                !playerHasNonSingletons(currentPlayer)) {
+                //player's inner row is empty, player has lost
+                return turn++ % 2;
             }
-            if(players[player] > 0) { //Namua
+            if(players[currentPlayer] > 0) { //Namua
                 //TODO: User input: where to put the seed
                 //restrictions: must capture if can capture, must have
                 //seeds already in the selected pit
-                Loc selection = getSowLoc(player);
+                Loc selection = getSowLoc(currentPlayer);
                 if(pitCanCapture(selection)) {
                     capturingMove = true;
                     int seeds = getPit(selection.getLocAcross()).setSeeds(0);
-                    players[player]--;
+                    players[currentPlayer]--;
                     if(getPit(selection) instanceof Nyumba &&
                         getPit(selection).isFunctional()) {
                         //TODO: which way to sow from nyumba from player
                         getPit(selection).addSeeds(-1);
-                        int dir = getTaxDir(player);
+                        int dir = getTaxDir(currentPlayer);
                         for(int i = 1; i >= 2; i++) {
                             Loc taxloc = new Loc(selection.getRow(),
                                 selection.getCol() + i * dir);
@@ -273,17 +280,18 @@ public class BaoGame {
                                 //After the nyumba is taxed things are sown from
                                 //that next pit
                                 sowFrom(taxloc, getPit(taxloc).getSeeds(),
-                                    player);
+                                    currentPlayer);
                             }
                         }
                     } else if(!selection.isKichwa(player) &&
-                        !selection.isKimbi(player)) {
+                        !selection.isKimbi(currentPlayer)) {
                         //Player can choose where to start sowing
-                        Loc start = getSowKichwa(player);
-                        sowFrom(start, seeds, player);
+                        Loc start = getSowKichwa(currentPlayer);
+                        sowFrom(start, seeds, currentPlayer);
                     } else {
                         //Is a kichwa, player can't choose.
-                        sowFrom(selection.getNearestKichwa(), seeds, player);
+                        sowFrom(selection.getNearestKichwa(), seeds,
+                            currentPlayer);
                     }
                 } else {
                     //Takasa
@@ -292,34 +300,37 @@ public class BaoGame {
                         //TODO: tax the nyumba
                     } else {
                         int seeds = getPit(selection).setSeeds(0);
-                        Loc start = getSowKichwa(player);
-                        sowFrom(start, seeds, player);
+                        Loc start = getSowKichwa(currentPlayer);
+                        sowFrom(start, seeds, currentPlayer);
                         //TODO: special takasa rules
                         //not from kichwa
                     }
                 }
             } else { //mtaji
-                if(playerCanCapture(player)) {
-                    captureingMove = true;
-                    //TODO: player input
-                    Loc capture = getCapturingPit(player);
-                    int dir = getDir(player);
+                if(playerCanCapture(currentPlayer)) {
+                    capturingMove = true;
+                    //TODO: player input: this pit must be able to capture
+                    Loc capture = getLocSelection(currentPlayer);
+                    int dir = getDir(currentPlayer);
                     //TODO: this is better than taxdir, etc.
                     sowFrom(capture, getPit(capture.getLocAcross()).getSeeds(),
-                        player);
+                        currentPlayer);
                 } else {
-                    if(rowHasNonSingletons(getInnerRow(player)) {
+                    if(rowHasNonSingletons(getInnerRow(currentPlayer))) {
                         //TODO: special rules in that method (row specific)
-                        Loc sow = getSowLoc(player, getInnerRow(player));
+                        Loc sow = getSowLoc(player, getInnerRow(currentPlayer));
                     } else {
-                        Loc sow = getSowLoc(player, getOuterRow(player));
+                        Loc sow = getSowLoc(player, getOuterRow(currentPlayer));
                     }
                     int seeds = getPit(sow).setSeeds(0);
                     //This is not sown from the kichwa
-                    sowFrom(sow, seeds, player);
+                    sowFrom(sow, seeds, currentPlayer);
                     
                 }
             }
+            turn++;
+            currentPlayer = turn % 2;
         }
+        System.out.print("Winner: " + (currentPlayer + 1));
     }
 }
