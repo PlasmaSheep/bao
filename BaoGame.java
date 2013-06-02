@@ -2,10 +2,6 @@
 //http://mancala.wikia.com/wiki/Bao_la_Kiswahili
 
 import java.util.Arrays;
-//TODO: current player should be instance variable
-//TODO: replace all dir getting methods with just one: get cw vs ccw
-//TODO: ui methods: ask custom boolean question, ask custom cw vs ccw question
-//TODO: ui methods: ask custom pit selection question
 public class BaoGame {
     Pit[][] board;
     int[] players;
@@ -128,16 +124,6 @@ public class BaoGame {
         }
         return false;
     }
-    
-    private Loc getLocSelection(int player) {
-        //TODO: write this method
-        return new Loc(1, 1);
-    }
-
-    private int getTaxDir(int player) {
-        //TODO: user input
-        return 1; //or -1 depending
-    } 
 
     private Loc getNyumbaLoc(int player) {
         if(player == 0 || player == 1) {
@@ -146,65 +132,57 @@ public class BaoGame {
         return new Loc(-1, -1);
     }
 
-    private int getSowDir(int player) {
-        //TODO: user input
-        return 1; //or -1 depending
-    }
-
     private Loc getSowLoc(int player) {
-        //TODO: code interaction with player once UI is finished
         if(playerCanCapture(player)) {
             //Player MUST capture
             Loc selection = new Loc(0, 0);
             while(!pitCanCapture(selection) &&
             !(getPit(selection).getSeeds() > 0)) {
-                //TODO: Get location from player
+                selection = UserIO.getLoc("Select a pit to sow. Pit must be \
+                able to capture.");
             }
             return selection;
         } else {
             //Player can't capture
             Loc selection = new Loc(0, 0);
             boolean onlyNyumbaHasSeeds = true;
+            int r = getInnerRow(player);
             for(int c = 0; c < 8; c++) {
-                if(board[getInnerRow(player)][c].getSeeds() > 1) {
+                if(board[r][c].getSeeds() > 1 &&
+                    !(r == player + 1 && c == player + 2)) {
                     onlyNyumbaHasSeeds = false;
                     break;
                 }
             }
-            if(onlyNyumbaHasSeeds) {
-                while(selection.getRow() != getInnerRow(player) ||
-                    !(getPit(selection).getSeeds() > 1)) {
-                    //TODO: get location from player
-                }
+            if(onlyNyumbaHasSeeds) { //Player can only move from nyumba
+                return new Loc(player + 1, player + 2);
             } else {
                 while(selection.getRow() != getInnerRow(player) ||
-                    getPit(selection) instanceof Nyumba ||
+                    selection.isNyumba() ||
                     !(getPit(selection).getSeeds() > 1)) {
-                    //TODO: get location from player
+                    selection = UserIO.getLoc("Select a pit to sow.");
                 }
+                return selection;
             }
-                
         }
-        return new Loc(0, 0); //TODO: fix thisg
     }
 
     private Loc getSowKichwa(int player) {
         Loc selection = new Loc(0, 0);
         while(!selection.isKichwa(player)) {
-            //TODO: Get selection from player
+            selection = UserIO.getLoc("Select one of your kichwas.");
         }
         return selection;
     }
     
     private boolean getSafariChoice(int player) {
-        //TODO: get selection from player
-        return true;
+        return UserIO.getBoolean("Safari the nyumba?");
     }
 
     private void sowFrom(Loc start, int seeds, int player) {
         //private void sowFrom(Loc start, int seeds) {
         //int dir = start.getKichwaSowDir();
-        int dir = getSowDir(player); //TODO: write this method
+        int dir = UserIO.getDir(player);
         Loc next = new Loc(start.getRow(), start.getCol());
 
         while(seeds > 0) { //Iterate until seeds run out
@@ -240,7 +218,6 @@ public class BaoGame {
         }
 
         if(getPit(next) instanceof Nyumba && getPit(next).isFunctional()) {
-            //TODO: check if user wants to safari or stop
             boolean safari = getSafariChoice(player);
             if(safari && capturingMove) {
                 //Nyumba should no longer be functional
@@ -251,6 +228,7 @@ public class BaoGame {
 
     public int Play() {
         while(true) {
+            System.out.println("Player " + (currentPlayer + 1) + "'s move");
             capturingMove = false;
             if(isRowEmpty(currentPlayer) ||
                 !playerHasNonSingletons(currentPlayer)) {
@@ -258,7 +236,6 @@ public class BaoGame {
                 return turn++ % 2;
             }
             if(players[currentPlayer] > 0) { //Namua
-                //TODO: User input: where to put the seed
                 //restrictions: must capture if can capture, must have
                 //seeds already in the selected pit
                 Loc selection = getSowLoc(currentPlayer);
@@ -268,9 +245,8 @@ public class BaoGame {
                     players[currentPlayer]--;
                     if(getPit(selection) instanceof Nyumba &&
                         getPit(selection).isFunctional()) {
-                        //TODO: which way to sow from nyumba from player
                         getPit(selection).addSeeds(-1);
-                        int dir = getTaxDir(currentPlayer);
+                        int dir = UserIO.getDir("Which way to tax nyumba?");
                         for(int i = 1; i >= 2; i++) {
                             Loc taxloc = new Loc(selection.getRow(),
                                 selection.getCol() + i * dir);
@@ -296,7 +272,7 @@ public class BaoGame {
                 } else {
                     //Takasa
                     getPit(selection).addSeeds(1);
-                    if(getPit(selection) instanceof Nyumba) {
+                    if(getPit(selection).isFunctional()) {
                         //TODO: tax the nyumba
                     } else {
                         int seeds = getPit(selection).setSeeds(0);
@@ -310,7 +286,8 @@ public class BaoGame {
                 if(playerCanCapture(currentPlayer)) {
                     capturingMove = true;
                     //TODO: player input: this pit must be able to capture
-                    Loc capture = getLocSelection(currentPlayer);
+                    Loc capture = UserIO.getCapLoc("Select pit to sow (must \
+                        capture", currentPlayer, this);
                     int dir = getDir(currentPlayer);
                     //TODO: this is better than taxdir, etc.
                     sowFrom(capture, getPit(capture.getLocAcross()).getSeeds(),

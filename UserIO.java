@@ -7,7 +7,7 @@ public class UserIO {
         in = new Scanner(System.in);
     }
     
-    public boolean getYesNo(String q) {
+    public static boolean getBoolean(String q) {
         String ans = "";
         while(true) {
             System.out.println(q + "(y/n)");
@@ -20,12 +20,42 @@ public class UserIO {
         }
     }
     
-    public Loc getLoc(String q, int player) {
-        Loc ans = new Loc(-1, -1);
-        while(ahs.whosePit() != player) {
-            System.out.print("Player " + (player + 1) + ": " + q);
-            System.out.print("Row: ");
-            int r = in.nextInt();
+    public static Loc getLoc(String q) {
+        System.out.println(q);
+        while(!(r > -1 && r < 4) || !(c > -1 && c < 8)) {
+            System.out.println("Row: ");
+            int r = in.nextInt() - 1;
+            System.out.println("Column: ");
+            int c = in.nextInt() - 1;
+        }
+        return new Loc(r, c);
+    }
+
+    public static Loc getCapLoc(String q, int p, BaoGame g) {
+        System.out.println(q);
+        Loc ans = new Loc(0, 0);
+        while(ans.whosePit() != p || !g.pitCanCapture(ans)) {
+            System.out.println("Row: ");
+            int r = in.nextInt() - 1;
+            System.out.println("Column: ");
+            int c = in.nextInt() - 1;
+            ans = new Loc(r, c);
+        }
+        return ans;
+    }
+
+    public static int getDir(String q) {
+        System.out.println(q);
+        String ans = "";
+        while(!ans.equalsIgnoreCase("cw") && !ans.equalsIgnoreCase("ccw")) {
+            System.out.println("CW or CCW?");
+            ans = in.next();
+        }
+        if(ans.equalsIgnoreCase("cw")) {
+            return 1;
+        } else {
+            return -1;
         }
     }
+            
 }
