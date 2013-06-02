@@ -10,7 +10,7 @@ public class UserIO {
     public boolean getBoolean(String q) {
         String ans = "";
         while(true) {
-            System.out.println(q + "(y/n)");
+            System.out.print(q + "(y/n): ");
             ans = in.next();
             if(ans.equalsIgnoreCase("y")) {
                 return true;
@@ -22,11 +22,13 @@ public class UserIO {
     
     public Loc getLoc(String q) {
         System.out.println(q);
+        int r = -1;
+        int c = -1;
         while(!(r > -1 && r < 4) || !(c > -1 && c < 8)) {
-            System.out.println("Row: ");
-            int r = in.nextInt() - 1;
-            System.out.println("Column: ");
-            int c = in.nextInt() - 1;
+            System.out.print("Row: ");
+            r = in.nextInt() - 1;
+            System.out.print("Column: ");
+            c = in.nextInt() - 1;
         }
         return new Loc(r, c);
     }
@@ -35,9 +37,9 @@ public class UserIO {
         System.out.println(q);
         Loc ans = new Loc(0, 0);
         while(ans.whosePit() != p || !g.pitCanCapture(ans)) {
-            System.out.println("Row: ");
+            System.out.print("Row: ");
             int r = in.nextInt() - 1;
-            System.out.println("Column: ");
+            System.out.print("Column: ");
             int c = in.nextInt() - 1;
             ans = new Loc(r, c);
         }
@@ -48,13 +50,34 @@ public class UserIO {
         System.out.println(q);
         String ans = "";
         while(!ans.equalsIgnoreCase("cw") && !ans.equalsIgnoreCase("ccw")) {
-            System.out.println("CW or CCW?");
+            System.out.print("CW or CCW?");
             ans = in.next();
         }
         if(ans.equalsIgnoreCase("cw")) {
             return 1;
         } else {
             return -1;
+        }
+    }
+
+    private void printHB() {
+        System.out.print("+");
+        for(int i = 0; i < 8; i++) {
+            System.out.print("----+");
+        }
+        System.out.print("\n");
+    }
+
+    public void printBoard(Pit[][] b) {
+        printHB();
+        for(int r = 0; r < b.length; r++) {
+            System.out.print("| ");
+            for(int c = 0; c < b[0].length; c++) {
+                System.out.printf("%2d", b[r][c].getSeeds());
+                System.out.print(" | ");
+            }
+            System.out.print("\n");
+            printHB();
         }
     }
             
