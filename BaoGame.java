@@ -8,25 +8,16 @@ public class BaoGame {
     int turn;
     boolean capturingMove;
     int currentPlayer;
+    UserIO io;
 
     public BaoGame() {
         board = new Pit[4][8];
         players = new int[2]; //Player 0 on top, player 1 not
+        io = new UserIO;
         Arrays.fill(players, 22);
         Arrays.fill(board, new Pit());
         turn = 0;
         currentPlayer = 0; //At any moment, current player is turn % 2.
-        /*for(int r = 0; r < 4; r++) {
-            for(int c = 0; c < 8; c++) {
-                if((r == 1 && c == 3) || (r == 2 && c == 4)) {
-                    board[r][c] = new Nyumba(6);
-                } else if((r == 1 && c == 2) && (r == 1 && c == 2)) {
-                    board[r][c] = new Pit(2);
-                } else {
-                    board[r][c] = new Pit();
-                }
-            }
-        }*/
         capturingMove = false;
         board[1][3] = new Nyumba(6);
         board[2][4] = new Nyumba(6);
@@ -138,7 +129,7 @@ public class BaoGame {
             Loc selection = new Loc(0, 0);
             while(!pitCanCapture(selection) &&
             !(getPit(selection).getSeeds() > 0)) {
-                selection = UserIO.getLoc("Select a pit to sow. Pit must be \
+                selection = io.getLoc("Select a pit to sow. Pit must be \
                 able to capture.");
             }
             return selection;
@@ -160,7 +151,7 @@ public class BaoGame {
                 while(selection.getRow() != getInnerRow(player) ||
                     selection.isNyumba() ||
                     !(getPit(selection).getSeeds() > 1)) {
-                    selection = UserIO.getLoc("Select a pit to sow.");
+                    selection = io.getLoc("Select a pit to sow.");
                 }
                 return selection;
             }
@@ -170,19 +161,19 @@ public class BaoGame {
     private Loc getSowKichwa(int player) {
         Loc selection = new Loc(0, 0);
         while(!selection.isKichwa(player)) {
-            selection = UserIO.getLoc("Select one of your kichwas.");
+            selection = io.getLoc("Select one of your kichwas.");
         }
         return selection;
     }
     
     private boolean getSafariChoice(int player) {
-        return UserIO.getBoolean("Safari the nyumba?");
+        return io.getBoolean("Safari the nyumba?");
     }
 
     private void sowFrom(Loc start, int seeds, int player) {
         //private void sowFrom(Loc start, int seeds) {
         //int dir = start.getKichwaSowDir();
-        int dir = UserIO.getDir(player);
+        int dir = io.getDir(player);
         Loc next = new Loc(start.getRow(), start.getCol());
 
         while(seeds > 0) { //Iterate until seeds run out
@@ -246,7 +237,7 @@ public class BaoGame {
                     if(getPit(selection) instanceof Nyumba &&
                         getPit(selection).isFunctional()) {
                         getPit(selection).addSeeds(-1);
-                        int dir = UserIO.getDir("Which way to tax nyumba?");
+                        int dir = io.getDir("Which way to tax nyumba?");
                         for(int i = 1; i >= 2; i++) {
                             Loc taxloc = new Loc(selection.getRow(),
                                 selection.getCol() + i * dir);
@@ -286,7 +277,7 @@ public class BaoGame {
                 if(playerCanCapture(currentPlayer)) {
                     capturingMove = true;
                     //TODO: player input: this pit must be able to capture
-                    Loc capture = UserIO.getCapLoc("Select pit to sow (must \
+                    Loc capture = io.getCapLoc("Select pit to sow (must \
                         capture", currentPlayer, this);
                     int dir = getDir(currentPlayer);
                     //TODO: this is better than taxdir, etc.
