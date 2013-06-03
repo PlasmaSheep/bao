@@ -60,24 +60,35 @@ public class UserIO {
         }
     }
 
-    private void printHB() {
+    private void printHB(int r) {
         System.out.print("+");
         for(int i = 0; i < 8; i++) {
-            System.out.print("----+");
+            if(((r == 1 || r == 2) && i == 3) ||
+                ((r == 2 || r == 3) && i == 4)) {
+               System.out.print("xxxx");
+            } else {
+                System.out.print("----");
+            }
+            System.out.print("+");
         }
         System.out.print("\n");
     }
 
     public void printBoard(Pit[][] b) {
-        printHB();
+        printHB(0);
         for(int r = 0; r < b.length; r++) {
             System.out.print("| ");
             for(int c = 0; c < b[0].length; c++) {
                 System.out.printf("%2d", b[r][c].getSeeds());
-                System.out.print(" | ");
+                if((r == 1 && (c == 2 || c == 3)) ||
+                    (r == 2 && (c == 3 || c == 4))) {
+                    System.out.print(" x ");
+                } else {
+                    System.out.print(" | ");
+                }
             }
             System.out.print("\n");
-            printHB();
+            printHB(r + 1);
         }
     }
             
