@@ -8,6 +8,7 @@ public class BaoGame {
     int turn;
     boolean capturingMove;
     int currentPlayer;
+    boolean namua;
     UserIO io;
 
     public BaoGame() {
@@ -23,6 +24,7 @@ public class BaoGame {
         }
         turn = 0;
         currentPlayer = 0; //At any moment, current player is turn % 2.
+        namua = true;
         capturingMove = false;
         board[1][3] = new Nyumba(6);
         board[2][4] = new Nyumba(6);
@@ -84,7 +86,7 @@ public class BaoGame {
         }
         return false;
     }
-
+    
     private boolean rowHasNonSingletons(int r) {
         for(int c = 0; c < 8; c++) {
             if(board[r][c].getSeeds() > 1) {
@@ -100,12 +102,10 @@ public class BaoGame {
     public boolean pitCanCapture(Loc loc) {
         //Can only capture if the pit at loc is in an interior row and the
         //pit across has seeds in it
-        if(loc.isInner()) {
-            //TODO: can capture at some point with empty pit?
-            if(getPit(loc).getSeeds() > 0 &&
-                getPit(loc.getLocAcross()).getSeeds() > 0) {
+        if(loc.isInner() && ((namua && getPit(loc).getSeeds() > 0) ||
+            (!namua && getPit(loc).getSeeds() > 1)) &&
+            getPit(loc.getLocAcross()).getSeeds() > 0) {
                 return true;
-            }
         }
         return false;
     }
@@ -123,6 +123,21 @@ public class BaoGame {
         return false;
     }
 
+    private void taxNyumba(int player, int dir) {
+        Loc nyumba = getNyumbaLoc(player);
+        getPit(nyumba).addSeeds(-1);
+        for(int i = 1; i >= 2; i++) {
+            Loc taxloc = new Loc(nyumba.getRow(), nyumba.getCol() + i * dir);
+            getPit(taxloc).addSeeds(1);
+            if(i == 2 && getPit(taxloc).getSeeds() > 1) {
+                //After the nyumba is taxed things are sown from that next pit,
+                //if necessary
+                sowFrom(taxloc, getPit(taxloc).getSeeds(),
+                    currentPlayer, dir);
+            }
+        }
+    }
+
     private Loc getNyumbaLoc(int player) {
         if(player == 0 || player == 1) {
             return new Loc(player + 1, player + 3);
@@ -131,11 +146,17 @@ public class BaoGame {
     }
 
     private Loc getSowLoc(int player) {
+        return getSowLoc(player, new int[] {0, 1, 2, 3});
+    }
+
+    private Loc getSowLoc(int player, int[] rows) {
+        
         if(playerCanCapture(player)) {
             //Player MUST capture
             Loc selection = new Loc(0, 0);
             while(!pitCanCapture(selection) &&
-            !(getPit(selection).getSeeds() > 0)) {
+            !(getPit(selection).getSeeds() > 0) &&
+            Arrays.binarySearch(rows, selection.getRow()) < 0) {
                 selection = io.getLoc(
                 "Select a pit to sow. Pit must be able to capture.");
             }
@@ -155,9 +176,14 @@ public class BaoGame {
             if(onlyNyumbaHasSeeds) { //Player can only move from nyumba
                 return new Loc(player + 1, player + 3);
             } else {
+                int minseed = 2;
+                if(namua && !rowHasNonSingletons(getInnerRow(player))) {
+                    minseed = 1;
+                }
                 while(selection.getRow() != getInnerRow(player) ||
                     getPit(selection).isFunctional() ||
-                    !(getPit(selection).getSeeds() > 1)) {
+                    !(getPit(selection).getSeeds() >= minseed) ||
+                    Arrays.binarySearch(rows, selection.getRow()) < 0) {
                     System.out.print("Pit must be in your inner row, not a functional nyumba, and have more than 1 seeds.");
                     selection = io.getLoc("Select a pit to sow.");
                 }
@@ -179,8 +205,12 @@ public class BaoGame {
     }
 
     private void sowFrom(Loc start, int seeds, int player) {
-        //private void sowFrom(Loc start, int seeds) {
         int dir = start.getKichwaSowDir();
+        sowFrom(start, seeds, player, dir);
+    }
+
+    private void sowFrom(Loc start, int seeds, int player, int dir) {
+        //private void sowFrom(Loc start, int seeds) {
         //int dir = io.getDir("Which way to start sowing?");
         Loc next = new Loc(start.getRow(), start.getCol());
 
@@ -211,8 +241,7 @@ public class BaoGame {
 
         if(getPit(next.getLocAcross()).getSeeds() > 0 &&
             getPit(next).getSeeds() > 1 && capturingMove == true) {
-            //Capture has happened, is a capturing move,
-            //so capture
+            //Capture has happened, is a capturing move, so capture
             int sownum = getPit(next.getLocAcross()).setSeeds(0);
             if(!next.isKichwa() && !next.isKimbi()) {
                 //sowFrom(getSowKichwa(next.whosePit()), sownum);
@@ -246,7 +275,7 @@ public class BaoGame {
                 //restrictions: must capture if can capture, must have
                 //seeds already in the selected pit
                 Loc selection = getSowLoc(currentPlayer);
-                if(pitCanCapture(selection)) {
+                if(pitCanCapture(selection)) { //Namua w/ cap
                     capturingMove = true;
                     int seeds = getPit(selection.getLocAcross()).setSeeds(0);
                     players[currentPlayer]--;
@@ -254,18 +283,7 @@ public class BaoGame {
                         getPit(selection).isFunctional()) {
                         getPit(selection).addSeeds(-1);
                         int dir = io.getDir("Which way to tax nyumba?");
-                        for(int i = 1; i >= 2; i++) {
-                            Loc taxloc = new Loc(selection.getRow(),
-                                selection.getCol() + i * dir);
-                            getPit(taxloc).addSeeds(1);
-                            if(i == 2 && getPit(taxloc).getSeeds() > 1) {
-                                //TODO: fix this
-                                //After the nyumba is taxed things are sown from
-                                //that next pit
-                                sowFrom(taxloc, getPit(taxloc).getSeeds(),
-                                    currentPlayer);
-                            }
-                        }
+                        taxNyumba(currentPlayer, dir);
                     } else if(!selection.isKichwa(currentPlayer) &&
                         !selection.isKimbi(currentPlayer)) {
                         //Player can choose where to start sowing
@@ -276,36 +294,39 @@ public class BaoGame {
                         sowFrom(selection.getNearestKichwa(), seeds,
                             currentPlayer);
                     }
-                } else {
-                    //Takasa
+                } else { //Namua no cap
                     getPit(selection).addSeeds(1);
                     if(getPit(selection).isFunctional()) {
-                        //TODO: tax the nyumba
+                        getPit(selection).addSeeds(-2);
+                        int dir = io.getDir("Which way to sow from namua?");
+                        sowFrom(selection, 2, currentPlayer, dir);
                     } else {
                         int seeds = getPit(selection).setSeeds(0);
-                        Loc start = getSowKichwa(currentPlayer);
-                        sowFrom(start, seeds, currentPlayer);
-                        //TODO: special takasa rules
-                        //not from kichwa
+                        if(selection.isKichwa()) {
+                            sowFrom(selection, seeds, currentPlayer);
+                        } else {
+                            Loc start = getSowKichwa(currentPlayer);
+                            sowFrom(start, seeds, currentPlayer);
+                        }
                     }
                 }
             } else { //mtaji
-                if(playerCanCapture(currentPlayer)) {
+                namua = false;
+                if(playerCanCapture(currentPlayer)) { //Mtaji w/cap
                     capturingMove = true;
-                    //TODO: player input: this pit must be able to capture
                     Loc capture = io.getCapLoc(
-                        "Select pit to sow (must capture", currentPlayer, this);
+                        "Select pit to sow (must capture)", currentPlayer,
+                        this);
                     int dir = io.getDir("Which way to sow?");
-                    //TODO: this is better than taxdir, etc.
                     sowFrom(capture, getPit(capture.getLocAcross()).getSeeds(),
-                        currentPlayer);
-                } else {
+                        currentPlayer, dir);
+                } else { //Mtaji no cap
                     //TODO: do this better?
                     Loc sow = getSowLoc(currentPlayer);
                     //getOuterRow(currentPlayer));
                     if(rowHasNonSingletons(getInnerRow(currentPlayer))) {
-                        //TODO: special rules in that method (row specific)
-                        sow = getSowLoc(currentPlayer);
+                        sow = getSowLoc(currentPlayer,
+                            new int[] {getInnerRow(currentPlayer)});
                         //getInnerRow(currentPlayer));
                     }
                         
