@@ -260,6 +260,10 @@ public class BaoGame {
         }
     }
 
+    public void main() {
+        io.printTitle();
+    }
+
     public void Play() {
         while(true) {
             disp();

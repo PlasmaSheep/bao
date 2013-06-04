@@ -91,5 +91,25 @@ public class UserIO {
             printHB(r + 1);
         }
     }
+
+    public void printTitle() {
+        System.out.println("****************SWAHILIAN***************");
+        System.out.println("     ___           ___           ___     ");
+        System.out.println("    /\\  \\         /\\  \\         /\\  \\    ");
+        System.out.println("   /::\\  \\       /::\\  \\       /::\\  \\   ");
+        System.out.println(
+            "  /:/\\:\\  \\     /:/\\:\\  \\     /:/\\:\\  \\  ");
+        System.out.println(
+            " /::\\~\\:\\__\\   /::\\~\\:\\  \\   /:/  \\:\\  \\ ");
+        System.out.println(
+            "/:/\\:\\ \\:|__| /:/\\:\\ \\:\\__\\ /:/__/ \\:\\__\\");
+        System.out.println(
+            "\\:\\~\\:\\/:/  / \\/__\\:\\/:/  / \\:\\  \\ /:/  /");
+        System.out.println(" \\:\\ \\::/  /       \\::/  /   \\:\\  /:/  / ");
+        System.out.println("  \\:\\/:/  /        /:/  /     \\:\\/:/  /  ");
+        System.out.println("   \\::/__/        /:/  /       \\::/  /   ");
+        System.out.println("    ~~            \\/__/         \\/__/    ");
+    }
+        
             
 }
