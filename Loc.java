@@ -2,10 +2,10 @@ public class Loc {
     private int r;
     private int c;
     
-    public Loc(int xin, int yin) {
-        if(xin > -1 && xin < 8 && yin > -1 && yin < 4) {
-            r = xin;
-            c = yin;
+    public Loc(int rin, int cin) {
+        if(rin > -1 && rin < 4 && cin > -1 && cin < 8) {
+            r = rin;
+            c = cin;
         }
     }
     

@@ -101,7 +101,9 @@ public class BaoGame {
         //Can only capture if the pit at loc is in an interior row and the
         //pit across has seeds in it
         if(loc.isInner()) {
-            if(getPit(loc.getLocAcross()).getSeeds() > 0) {
+            //TODO: can capture at some point with empty pit?
+            if(getPit(loc).getSeeds() > 0 &&
+                getPit(loc.getLocAcross()).getSeeds() > 0) {
                 return true;
             }
         }
@@ -151,11 +153,12 @@ public class BaoGame {
                 }
             }
             if(onlyNyumbaHasSeeds) { //Player can only move from nyumba
-                return new Loc(player + 1, player + 2);
+                return new Loc(player + 1, player + 3);
             } else {
                 while(selection.getRow() != getInnerRow(player) ||
-                    selection.isNyumba() ||
+                    getPit(selection).isFunctional() ||
                     !(getPit(selection).getSeeds() > 1)) {
+                    System.out.print("Pit must be in your inner row, not a functional nyumba, and have more than 1 seeds.");
                     selection = io.getLoc("Select a pit to sow.");
                 }
                 return selection;
@@ -177,28 +180,34 @@ public class BaoGame {
 
     private void sowFrom(Loc start, int seeds, int player) {
         //private void sowFrom(Loc start, int seeds) {
-        //int dir = start.getKichwaSowDir();
-        int dir = io.getDir("Which way to start sowing?");
+        int dir = start.getKichwaSowDir();
+        //int dir = io.getDir("Which way to start sowing?");
         Loc next = new Loc(start.getRow(), start.getCol());
 
         while(seeds > 0) { //Iterate until seeds run out
-            int c = next.getCol();
-            int r = next.getRow();
-            if(c + dir > 7 || c + dir < 0) {
-                //Reached the end of row, move in opposite
-                //direction on other row
-                dir *= -1;
-                if(r == 1 || r == 3) {
-                    r--;
-                } else {
-                    r++;
-                }
-            }
-            next = new Loc(c + dir, r);
-
+            disp();
             seeds--;
             getPit(next).addSeeds(1);
+            int c = next.getCol();
+            int r = next.getRow();
+            if(seeds > 0) {
+                if(c + dir > 7 || c + dir < 0) {
+                    //Reached the end of row, move in opposite
+                    //direction on other row
+                    dir *= -1;
+                    if(r == 1 || r == 3) {
+                        r--;
+                    } else {
+                        r++;
+                    }
+                }
+                next = new Loc(r, c + dir);
+            }
+
+            //seeds--;
+            //getPit(next).addSeeds(1);
         }
+        disp();
 
         if(getPit(next.getLocAcross()).getSeeds() > 0 &&
             getPit(next).getSeeds() > 1 && capturingMove == true) {
@@ -224,6 +233,7 @@ public class BaoGame {
 
     public void Play() {
         while(true) {
+            disp();
             System.out.println("Player " + (currentPlayer + 1) + "'s move");
             capturingMove = false;
             if(isRowEmpty(getInnerRow(currentPlayer)) ||
@@ -312,6 +322,7 @@ public class BaoGame {
     }
 
     public void disp() {
+        System.out.print("\n");
         io.printBoard(board);
     }
 }

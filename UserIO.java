@@ -37,6 +37,7 @@ public class UserIO {
         System.out.println(q);
         Loc ans = new Loc(0, 0);
         while(ans.whosePit() != p || !g.pitCanCapture(ans)) {
+           
             System.out.print("Row: ");
             int r = in.nextInt() - 1;
             System.out.print("Column: ");
