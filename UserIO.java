@@ -92,7 +92,7 @@ public class UserIO {
         }
     }
 
-    public void printTitle() {
+    public int printTitle() {
         System.out.println("****************SWAHILIAN***************");
         System.out.println("     ___           ___           ___     ");
         System.out.println("    /\\  \\         /\\  \\         /\\  \\    ");
@@ -109,7 +109,26 @@ public class UserIO {
         System.out.println("  \\:\\/:/  /        /:/  /     \\:\\/:/  /  ");
         System.out.println("   \\::/__/        /:/  /       \\::/  /   ");
         System.out.println("    ~~            \\/__/         \\/__/    ");
+        System.out.println("Select game mode:");
+        System.out.println("1. PvP");
+        System.out.println("2. AI");
+        int mode = -1;
+        while(mode != 1 && mode != 2) {
+            System.out.print("Mode: ");
+            mode = in.nextInt();
+        }
+        if(mode == 1) {
+            return 1;
+        } else {
+            System.out.println("Select AI difficulty:");
+            System.out.println("1. Stupid");
+            System.out.println("2. Slightly less stupid");
+            mode = -1;
+            while(mode != 1 && mode != 2) {
+                System.out.print("Difficulty: ");
+                mode = in.nextInt();
+            }
+            return mode + 1;
+        }
     }
-        
-            
 }

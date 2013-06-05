@@ -10,6 +10,8 @@ public class BaoGame {
     int currentPlayer;
     boolean namua;
     UserIO io;
+    BaoDummy ai;
+    int mode;
 
     public BaoGame() {
         board = new Pit[4][8];
@@ -113,7 +115,7 @@ public class BaoGame {
     /**
      * Return true if any of the player's pits can capture the pit across.
      */
-    private boolean playerCanCapture(int player) {
+    public boolean playerCanCapture(int player) {
         int r = getInnerRow(player);
         for(int c = 0; c < 8; c++) {
             if(pitCanCapture(new Loc(r, c))) {
@@ -137,6 +139,14 @@ public class BaoGame {
             }
         }
     }
+    
+    public int getPlayerSeeds(int player) {
+        return players[player];
+    }
+    
+    public Pit[][] getBoard() {
+        return board;
+    }
 
     private Loc getNyumbaLoc(int player) {
         if(player == 0 || player == 1) {
@@ -150,7 +160,6 @@ public class BaoGame {
     }
 
     private Loc getSowLoc(int player, int[] rows) {
-        
         if(playerCanCapture(player)) {
             //Player MUST capture
             Loc selection = new Loc(0, 0);
@@ -261,10 +270,17 @@ public class BaoGame {
     }
 
     public void main() {
-        io.printTitle();
+        int gmode = io.printTitle();
+        mode = gmode;
+        if(mode == 1) { //Player versus player
+            Play();
+        } else {
+            ai = new BaoDummy(mode, this);
+            Play();
+        }
     }
 
-    public void Play() {
+    private void Play() {
         while(true) {
             disp();
             System.out.println("Player " + (currentPlayer + 1) + "'s move");
@@ -274,6 +290,13 @@ public class BaoGame {
                 //player's inner row is empty, player has lost
                 currentPlayer = turn++ % 2;
                 break;
+            }
+            if(mode > 1 && currentPlayer == 0) {
+                Loc next = ai.getNextMove();
+                
+                turn++;
+                currentPlayer = turn % 2;
+                continue;
             }
             if(players[currentPlayer] > 0) { //Namua
                 //restrictions: must capture if can capture, must have
