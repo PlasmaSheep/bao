@@ -110,8 +110,8 @@ public class UserIO {
         System.out.println("   \\::/__/        /:/  /       \\::/  /   ");
         System.out.println("    ~~            \\/__/         \\/__/    ");
         System.out.println("Select game mode:");
-        System.out.println("1. PvP");
-        System.out.println("2. AI");
+        System.out.println("1. Play against Player");
+        System.out.println("2. Play against AI");
         int mode = -1;
         while(mode != 1 && mode != 2) {
             System.out.print("Mode: ");

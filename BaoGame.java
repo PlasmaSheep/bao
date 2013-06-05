@@ -50,6 +50,24 @@ public class BaoGame {
         return true;
     }
 
+    public boolean onlyNyumbaHasSeeds(int r) {
+        for(int c = 0; c < 8; c++) {
+            if(board[r][c].getSeeds() > 0 && !board[r][c].isFunctional()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /*public boolean onlyNyumbaNonSingleton(int r) {
+        for(int c = 0; c < 8; c++) {
+            if(board[r][c].getSeeds() > 1 && !board[r][c].isFunctional()) {
+                return false;
+            }
+        }
+        return true;
+    }*/
+
     /**
      * Get the row number of a player's inner row (row closest to the middle).
      */

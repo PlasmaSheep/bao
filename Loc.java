@@ -87,6 +87,13 @@ public class Loc {
         }
         return false;
     }
+
+    public boolean isNyumba(int p) {
+        if(r == p + 1 && c == p + 3) {
+            return true;
+        }
+        return false;
+    }
     
     public int whosePit() {
         if(r == 0 || r == 1) {
