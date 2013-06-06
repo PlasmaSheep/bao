@@ -82,7 +82,7 @@ public class BaoGame {
         return -1;
     }
 
-    private int getOuterRow(int player) {
+    public int getOuterRow(int player) {
         if(player == 0 || player == 1) {
             return player * 3;
         }
@@ -111,7 +111,7 @@ public class BaoGame {
         return false;
     }
     
-    private boolean rowHasNonSingletons(int r) {
+    public boolean rowHasNonSingletons(int r) {
         for(int c = 0; c < 8; c++) {
             if(board[r][c].getSeeds() > 1) {
                 return true;
@@ -307,7 +307,7 @@ public class BaoGame {
 
     private void play() {
         while(true) {
-            disp();
+            //disp();
             System.out.println("Player " + (currentPlayer + 1) + "'s move");
             capturingMove = false;
             if(isRowEmpty(getInnerRow(currentPlayer)) ||
@@ -322,7 +322,11 @@ public class BaoGame {
                     taxNyumba(currentPlayer, ai.getTaxDir());
                 } else {
                     int seeds = getPit(next).setSeeds(0);
-                    sowFrom(next, seeds, 0, ai.getSowKichwa(seeds));
+                    if(next.isNyumba() || next.isKimbi()) {
+                        sowFrom(next.getNearestKichwa(), seeds, 0);
+                    } else {
+                        sowFrom(ai.getSowKichwa(seeds), seeds, 0);
+                    }
                 }
                 turn++;
                 currentPlayer = turn % 2;

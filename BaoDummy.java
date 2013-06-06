@@ -56,6 +56,18 @@ public class BaoDummy {
         return locs.get(max);
     }
 
+    private Loc bestCap(ArrayList <Loc> caps) {
+        int max = 0;
+        for(int i = 0; i < caps.size(); i++) {
+            if(g.getPit(caps.get(i).getLocAcross()).getSeeds() >
+                g.getPit(caps.get(max).getLocAcross()).getSeeds()) {
+                max = i;
+            }
+        }
+        return caps.get(max);
+    }
+        
+
     public int getTaxDir() {
         if(diff == 1) {
             double rand = select.nextDouble();
@@ -117,25 +129,27 @@ public class BaoDummy {
         return new int[] {cap, resow};
     }
 
-    public int getSowKichwa(int seeds) {
+    public Loc getSowKichwa(int seeds) {
+        Loc lk = new Loc(1, 0);
+        Loc rk = new Loc(1, 7);
         if(diff == 1) {
             double rand = select.nextDouble();
             if(rand > .5) {
-                return 1;
+                return lk;
             } else {
-                return -1;
+                return rk;
             }
         } else {
-            int[] l = sowFrom(new Loc(1, 0), seeds);
-            int[] r = sowFrom(new Loc(1, 7), seeds);
+            int[] l = sowFrom(lk, seeds);
+            int[] r = sowFrom(rk, seeds);
             if(l[1] > r[1]) {
-                return 1;
+                return lk;
             } else if(l[1] < r[1]) {
-                return -1;
+                return rk;
             } else if(r[0] > l[0]) {
-                return -1;
+                return rk;
             } else {
-                return 1;
+                return lk;
             }
         }
     }
@@ -144,14 +158,7 @@ public class BaoDummy {
         if(g.playerCanCapture(0)) {
             ArrayList <Loc> caps = getCaptures();
             if(diff == 2) { //Capture the pit with the most stones
-                int max = 0;
-                for(int i = 0; i < caps.size(); i++) {
-                    if(g.getPit(caps.get(i).getLocAcross()).getSeeds() >
-                        g.getPit(caps.get(max).getLocAcross()).getSeeds()) {
-                        max = i;
-                    }
-                }
-                return caps.get(max);
+                return bestCap(caps);
             } else {
                 return caps.get(select.nextInt(caps.size()));
             }                    
@@ -177,9 +184,38 @@ public class BaoDummy {
             }
         }
     }
+    private ArrayList <Loc> getNonSingletons(int r) {
+        ArrayList <Loc> nons = new ArrayList <Loc> ();
+        for(int c = 0; c < 8; c++) {
+            if(g.getPit(new Loc(r, c)).getSeeds() > 1) {
+                nons.add(new Loc(r, c));
+            }
+        }
+        return nons;
+    }
     
     private Loc mtajiMove() {
-        return new Loc(0,0); //TODO fix this
+        if(g.playerCanCapture(player)) {
+            ArrayList <Loc> caps = getCaptures();
+            if(diff == 2) { //Capture pit with most seeds across
+                return bestCap(caps);
+            } else {
+                return caps.get(select.nextInt(caps.size()));
+            }
+        } else {
+            ArrayList <Loc> locs;
+            if(g.rowHasNonSingletons(g.getInnerRow(player))) {
+                locs = getNonSingletons(g.getInnerRow(player));
+            } else {
+                locs = getNonSingletons(g.getOuterRow(player));
+            }
+            if(diff == 1) {
+                return locs.get(select.nextInt(locs.size()));
+            } else {
+                return mostSeeds(locs);
+            }
+        }
+                
     }
     
     public void check() {
