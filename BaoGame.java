@@ -75,7 +75,7 @@ public class BaoGame {
     /**
      * Get the row number of a player's inner row (row closest to the middle).
      */
-    private int getInnerRow(int player) {
+    public int getInnerRow(int player) {
         if(player == 0 || player == 1) {
             return player + 1;
         }
@@ -92,7 +92,7 @@ public class BaoGame {
     /**
      * Get the pit described by loc.
      */
-    private Pit getPit(Loc loc) {
+    public Pit getPit(Loc loc) {
         return board[loc.getRow()][loc.getCol()];
     }
 
@@ -170,7 +170,7 @@ public class BaoGame {
         return board;
     }
 
-    private Loc getNyumbaLoc(int player) {
+    public Loc getNyumbaLoc(int player) {
         if(player == 0 || player == 1) {
             return new Loc(player + 1, player + 3);
         } 
@@ -321,7 +321,8 @@ public class BaoGame {
                 if(getPit(next).isFunctional()) { //Is a nyumba, so get tax dir
                     taxNyumba(currentPlayer, ai.getTaxDir());
                 } else {
-                    sowFrom(next, next.setSeeds(0), 0, ai.getSowKichwa());
+                    int seeds = getPit(next).setSeeds(0);
+                    sowFrom(next, seeds, 0, ai.getSowKichwa(seeds));
                 }
                 turn++;
                 currentPlayer = turn % 2;
