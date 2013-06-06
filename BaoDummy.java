@@ -5,11 +5,15 @@ public class BaoDummy {
     BaoGame g;
     UserIO io;
     Random select;
+    Loc nyumba;
+    int player;
     
     public BaoDummy(int difficulty, BaoGame game) {
         diff = difficulty;
         g = game;
         io = new UserIO();
+        player = 0;
+        nyumba = g.getNyumbaLoc(player);
     }
     
     public Loc getNextMove() {
@@ -51,7 +55,90 @@ public class BaoDummy {
         }
         return locs.get(max);
     }
-                
+
+    public int getTaxDir() {
+        if(diff == 1) {
+            double rand = select.nextDouble();
+            if(rand > .5) {
+                return -1;
+            } else {
+                return 1;
+            }
+        } else { //Move to the side that will result in resowing
+            int c = nyumba.getCol();
+            if(g.getPit(new Loc(g.getInnerRow(player), c - 2).getSeeds() >
+                g.getPit(new Loc(g.getInnerRow(player), c + 2).getSeeds()) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+    }
+
+    public boolean getSafariChoice() {
+        return select.nextBoolean();
+    }
+
+
+    private int[] sowFrom(Loc start, int seeds) {
+        int cap = 0;
+        int resow = 0;
+        Loc next = new Loc(start.getRow(), start.getCol());
+
+        while(seeds > 0) { //Iterate until seeds run out
+            seeds--;
+            int c = next.getCol();
+            int r = next.getRow();
+            if(seeds > 0) {
+                if(c + dir > 7 || c + dir < 0) {
+                    //Reached the end of row, move in opposite
+                    //direction on other row
+                    dir *= -1;
+                    if(r == 1 || r == 3) {
+                        r--;
+                    } else {
+                        r++;
+                    }
+                }
+                next = new Loc(r, c + dir);
+            }
+
+        }
+
+        if(g.getPit(next.getLocAcross()).getSeeds() > 0 &&
+            g.getPit(next).getSeeds() > 1 && g.isCapturingMove()) {
+            cap = g.getPit(next.getLocAcross());
+        }
+
+        if(g.getPit(next).getSeeds > 0) {
+            resow = g.getPit(next).getSeeds();
+        }
+        return new int[] {cap, resow};
+    }
+
+    public Loc getSowKichwa(int seeds) {
+        if(diff == 1) {
+            double rand = select.nextDouble();
+            if(rand > .5) {
+                return new Loc(1, 0);
+            } else {
+                return new Loc(1, 7);
+            }
+        } else {
+            int[] l = sowFrom(new Loc(1, 0), seeds);
+            int[] r = sowFrom(new Loc(1, 7), seeds);
+            if(l[1] > r[1]) {
+                return new Loc(1, 0);
+            } else if(l[1] < r[1]) {
+                return new Loc(1, 7);
+            } else if(r[0] > l[0]) {
+                return new Loc(1, 7);
+            } else {
+                return new Loc(1, 0);
+            }
+        }
+    }
+    
     private Loc namuaMove() {
         if(g.playerCanCapture(0)) {
             ArrayList <Loc> caps = getCaptures();
@@ -81,11 +168,13 @@ public class BaoDummy {
                 }
             }
                 
-                
             if(diff == 2) { //Sow seed in the hole with the most seeds
-                int max = 0;
-                for(int i = 0;
-                
+                return mostSeeds(pits);
+            } else {
+                //Sow in random hole
+                return pits.get(select.nextInt(pits.size());
+            }
+        }
     }
     
     private Loc mtajiMove() {

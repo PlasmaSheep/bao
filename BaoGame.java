@@ -50,6 +50,10 @@ public class BaoGame {
         return true;
     }
 
+    public boolean isCapturingMove() {
+        return capturingMove;
+    }
+
     public boolean onlyNyumbaHasSeeds(int r) {
         for(int c = 0; c < 8; c++) {
             if(board[r][c].getSeeds() > 0 && !board[r][c].isFunctional()) {
@@ -228,6 +232,9 @@ public class BaoGame {
     }
     
     private boolean getSafariChoice(int player) {
+        if(mode > 1) {
+            return ai.getSafariChoice();
+        }
         return io.getBoolean("Safari the nyumba?");
     }
 
@@ -278,7 +285,7 @@ public class BaoGame {
             }
         }
 
-        if(getPit(next) instanceof Nyumba && getPit(next).isFunctional()) {
+        if(getPit(next).isFunctional()) {
             boolean safari = getSafariChoice(player);
             if(safari && capturingMove) {
                 //Nyumba should no longer be functional
@@ -291,14 +298,14 @@ public class BaoGame {
         int gmode = io.printTitle();
         mode = gmode;
         if(mode == 1) { //Player versus player
-            Play();
+            play();
         } else {
             ai = new BaoDummy(mode, this);
-            Play();
+            play();
         }
     }
 
-    private void Play() {
+    private void play() {
         while(true) {
             disp();
             System.out.println("Player " + (currentPlayer + 1) + "'s move");
@@ -311,7 +318,11 @@ public class BaoGame {
             }
             if(mode > 1 && currentPlayer == 0) {
                 Loc next = ai.getNextMove();
-                
+                if(getPit(next).isFunctional()) { //Is a nyumba, so get tax dir
+                    taxNyumba(currentPlayer, ai.getTaxDir());
+                } else {
+                    sowFrom(next, next.setSeeds(0), 0, ai.getSowKichwa());
+                }
                 turn++;
                 currentPlayer = turn % 2;
                 continue;
