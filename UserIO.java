@@ -2,6 +2,12 @@ import java.util.Scanner;
 
 public class UserIO {
     Scanner in;
+    BaoGame g;
+    
+    public UserIO(BaoGame game) {
+        in = new Scanner(System.in);
+        g = game;
+    }
     
     public UserIO() {
         in = new Scanner(System.in);
@@ -90,8 +96,14 @@ public class UserIO {
             System.out.print("\n");
             printHB(r + 1);
         }
+        printSeeds();
     }
-
+    
+    public void printSeeds() {
+        System.out.println("Player 1 seeds: " + g.getPlayerSeeds(0));
+        System.out.println("Player 2 seeds: " + g.getPlayerSeeds(1));
+    }
+    
     public int printTitle() {
         System.out.println("****************SWAHILIAN***************");
         System.out.println("     ___           ___           ___     ");
@@ -111,7 +123,7 @@ public class UserIO {
         System.out.println("    ~~            \\/__/         \\/__/    ");
         System.out.println("Select game mode:");
         System.out.println("1. Play against Player");
-        System.out.println("2. Play against AI");
+        System.out.println("2. Play against Ashkon");
         int mode = -1;
         while(mode != 1 && mode != 2) {
             System.out.print("Mode: ");
@@ -120,9 +132,9 @@ public class UserIO {
         if(mode == 1) {
             return 1;
         } else {
-            System.out.println("Select AI difficulty:");
-            System.out.println("1. Stupid");
-            System.out.println("2. Slightly less stupid");
+            System.out.println("Select Ashkon's level:");
+            System.out.println("1. Terrible");
+            System.out.println("2. Slightly less terrible");
             mode = -1;
             while(mode != 1 && mode != 2) {
                 System.out.print("Difficulty: ");

@@ -8,6 +8,11 @@ public class Loc {
             c = cin;
         }
     }
+
+    public Loc() {
+        r = -1;
+        c = -1;
+    }
     
     public boolean isInner() {
         if(r == 1 || r == 2) {

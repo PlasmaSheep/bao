@@ -16,7 +16,7 @@ public class BaoGame {
     public BaoGame() {
         board = new Pit[4][8];
         players = new int[2]; //Player 0 on top, player 1 not
-        io = new UserIO();
+        io = new UserIO(this);
         Arrays.fill(players, 22);
         //Arrays.fill(board, new Pit());
         for(int r = 0; r < 4; r++) {
@@ -184,7 +184,8 @@ public class BaoGame {
     private Loc getSowLoc(int player, int[] rows) {
         if(playerCanCapture(player)) {
             //Player MUST capture
-            Loc selection = new Loc(0, 0);
+            Loc selection = io.getLoc(
+                "Select a pit to sow. Pit must be able to capture.");
             while(!pitCanCapture(selection) &&
             !(getPit(selection).getSeeds() > 0) &&
             Arrays.binarySearch(rows, selection.getRow()) < 0) {
@@ -194,7 +195,7 @@ public class BaoGame {
             return selection;
         } else {
             //Player can't capture
-            Loc selection = new Loc(0, 0);
+            Loc selection = selection = io.getLoc("Select a pit to sow.");
             boolean onlyNyumbaHasSeeds = true;
             int r = getInnerRow(player);
             for(int c = 0; c < 8; c++) {
@@ -318,16 +319,29 @@ public class BaoGame {
             }
             if(mode > 1 && currentPlayer == 0) {
                 Loc next = ai.getNextMove();
-                if(getPit(next).isFunctional()) { //Is a nyumba, so get tax dir
-                    taxNyumba(currentPlayer, ai.getTaxDir());
-                } else {
-                    int seeds = getPit(next).setSeeds(0);
+                if(players[currentPlayer] > 0) {
+                    getPit(next).addSeeds(1);
+                    players[currentPlayer]--;
+                }
+
+                if(playerCanCapture(currentPlayer)) {
+                    int seeds = getPit(next.getLocAcross()).setSeeds(0);
                     if(next.isNyumba() || next.isKimbi()) {
                         sowFrom(next.getNearestKichwa(), seeds, 0);
                     } else {
                         sowFrom(ai.getSowKichwa(seeds), seeds, 0);
                     }
+                } else {
+                    int seeds = getPit(next).setSeeds(0);
+                    if(getPit(next).isFunctional()) { //Is a nyumba, so get tax dir
+                        taxNyumba(currentPlayer, ai.getTaxDir());
+                    } if(next.isKichwa() || next.isKimbi()) {
+                        sowFrom(next.getNearestKichwa(), seeds, 0);
+                    } else {
+                        sowFrom(ai.getSowKichwa(seeds), seeds, 0);
+                    }
                 }
+
                 turn++;
                 currentPlayer = turn % 2;
                 continue;
@@ -336,10 +350,11 @@ public class BaoGame {
                 //restrictions: must capture if can capture, must have
                 //seeds already in the selected pit
                 Loc selection = getSowLoc(currentPlayer);
+                System.out.println(selection.getRow() + " " + selection.getCol());
                 if(pitCanCapture(selection)) { //Namua w/ cap
                     capturingMove = true;
                     int seeds = getPit(selection.getLocAcross()).setSeeds(0);
-                    players[currentPlayer]--;
+                    getPit(selection).addSeeds(1);
                     if(getPit(selection) instanceof Nyumba &&
                         getPit(selection).isFunctional()) {
                         getPit(selection).addSeeds(-1);
@@ -359,7 +374,7 @@ public class BaoGame {
                     getPit(selection).addSeeds(1);
                     if(getPit(selection).isFunctional()) {
                         getPit(selection).addSeeds(-2);
-                        int dir = io.getDir("Which way to sow from namua?");
+                        int dir = io.getDir("Which way to sow from nyumba?");
                         sowFrom(selection, 2, currentPlayer, dir);
                     } else {
                         int seeds = getPit(selection).setSeeds(0);
@@ -371,6 +386,7 @@ public class BaoGame {
                         }
                     }
                 }
+                players[currentPlayer]--;
             } else { //mtaji
                 namua = false;
                 if(playerCanCapture(currentPlayer)) { //Mtaji w/cap
@@ -400,7 +416,11 @@ public class BaoGame {
             turn++;
             currentPlayer = turn % 2;
         }
-        System.out.print("Winner: " + (currentPlayer + 1));
+        if(currentPlayer == 0) {
+            System.out.println("Winner: Ashkon");
+        } else {
+            System.out.print("Winner: Player " + (currentPlayer + 1));
+        }
     }
 
     public void disp() {

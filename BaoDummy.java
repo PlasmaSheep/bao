@@ -10,6 +10,7 @@ public class BaoDummy {
     
     public BaoDummy(int difficulty, BaoGame game) {
         diff = difficulty;
+        select = new Random();
         g = game;
         io = new UserIO();
         player = 0;
@@ -180,6 +181,8 @@ public class BaoDummy {
                 return mostSeeds(pits);
             } else {
                 //Sow in random hole
+                System.out.println(pits.size());
+                System.out.println(select.nextInt(pits.size()));
                 return pits.get(select.nextInt(pits.size()));
             }
         }
